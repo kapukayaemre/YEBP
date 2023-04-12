@@ -45,16 +45,16 @@
                             <td>{{ $category->slug }}</td>
                             <td>
                                 @if($category->status)
-                                    Aktif
+                                    <a href="javascript:void(0)" data-id="{{ $category->id }}" class="btn btn-success btn-sm btnChangeStatus">Aktif</a>
                                 @else
-                                    Pasif
+                                    <a href="javascript:void(0)" data-id="{{ $category->id }}" class="btn btn-danger btn-sm btnChangeStatus">Pasif</a>
                                 @endif
                             </td>
                             <td>
-                                @if($category->status)
-                                    Aktif
+                                @if($category->feature_status)
+                                    <a href="javascript:void(0)" data-id="{{ $category->id }}" class="btn btn-success btn-sm btnChangeFeatureStatus">Aktif</a>
                                 @else
-                                    Pasif
+                                    <a href="javascript:void(0)" data-id="{{ $category->id }}" class="btn btn-danger btn-sm btnChangeFeatureStatus">Pasif</a>
                                 @endif
                             </td>
                             <td>{{ substr($category->description, 0, 20) }}</td>
@@ -62,8 +62,10 @@
                             <td>{{ $category->parentCategory?->name }}</td>
                             <td>{{ $category->user->name }}</td>
                             <td>
-                                <a href="#" class="btn btn-warning"><i class="material-icons">edit</i></a>
-                                <a href="#" class="btn btn-danger"><i class="material-icons">delete</i></a>
+                                <div class="d-flex">
+                                    <a href="javascript:void(0)" class="btn btn-warning btn-sm"><i class="material-icons ms-0">edit</i></a>
+                                    <a href="javascript:void(0)" class="btn btn-danger btn-sm"><i class="material-icons ms-0">delete</i></a>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -73,7 +75,78 @@
 
     </x-bootstrap.card>
 
+    <form action="" method="POST" id="statusChangeForm">
+        @csrf
+        <input type="hidden" name="id" id="inputStatus" value="">
+    </form>
+
 @endsection
 
 @section("js")
+    <script>
+        $(document).ready(function (){
+            $(".btnChangeStatus").click(function (){
+                let categoryID = $(this).data('id');
+                $('#inputStatus').val(categoryID);
+
+                Swal.fire({
+                    title: 'Status Değiştirmek İstediğinize Emin Misiniz',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'Evet',
+                    denyButtonText: `Hayır`,
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed)
+                    {
+                        $('#statusChangeForm').attr("action","{{ route('category.changeStatus') }}");
+                        $('#statusChangeForm').submit();
+                    }
+                    else if (result.isDenied)
+                    {
+                        // Swal.fire('Herhangi Bir İşlem Yapılmadı', '', 'info')
+                        Swal.fire({
+                            title: "Bilgi",
+                            text: "Herhangi Bir İşlem Yapılmadı",
+                            confirmButtonText: "Tamam",
+                            icon: "info",
+                        });
+                    }
+                })
+
+            });
+            $(".btnChangeFeatureStatus").click(function (){
+                let categoryID = $(this).data('id');
+                $('#inputStatus').val(categoryID);
+
+                Swal.fire({
+                    title: 'Feature Status Değiştirmek İstediğinize Emin Misiniz',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'Evet',
+                    denyButtonText: `Hayır`,
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed)
+                    {
+                        $('#statusChangeForm').attr("action","{{ route('category.changeFeatureStatus') }}");
+                        $('#statusChangeForm').submit();
+                    }
+                    else if (result.isDenied)
+                    {
+                        // Swal.fire('Herhangi Bir İşlem Yapılmadı', '', 'info')
+                        Swal.fire({
+                            title: "Bilgi",
+                            text: "Herhangi Bir İşlem Yapılmadı",
+                            confirmButtonText: "Tamam",
+                            icon: "info",
+                        });
+                    }
+                })
+
+            });
+        });
+    </script>
 @endsection
