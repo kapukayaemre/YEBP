@@ -45,6 +45,7 @@ class CategoryController extends Controller
         return redirect()->back();
 
     }
+
     public function changeFeatureStatus(Request $request)
     {
         $request->validate([
@@ -66,8 +67,50 @@ class CategoryController extends Controller
             ->showConfirmButton('Tamam', '#3085d6')
             ->autoClose(5000);
 
-//        return redirect()->route("category.index");
         return redirect()->back();
+
+    }
+
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'id' => ['required','integer', "exists:categories"]
+        ]);
+
+        $categoryID = $request->id;
+        Category::where("id", $categoryID)->delete();
+
+        $statusText =  "Kategori Silindi";
+
+        alert()
+            ->success('Başarılı', $statusText)
+            ->showConfirmButton('Tamam', '#3085d6')
+            ->autoClose(5000);
+
+        return redirect()->back();
+
+    }
+
+    public function edit(Request $request)
+    {
+
+        $categoryID = $request->id;
+        $category = Category::where("id", $categoryID)->first();
+
+        if (is_null($category))
+        {
+            $statusText =  "Kategori Bulunamadı";
+
+            alert()
+                ->info('Bilgi', $statusText)
+                ->showConfirmButton('Tamam', '#3085d6')
+                ->autoClose(5000);
+
+            return redirect()->route("category.index");
+
+        }
+
+        return view("admin.categories.create-update", compact("category"));
 
     }
 

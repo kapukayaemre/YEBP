@@ -63,8 +63,13 @@
                             <td>{{ $category->user->name }}</td>
                             <td>
                                 <div class="d-flex">
-                                    <a href="javascript:void(0)" class="btn btn-warning btn-sm"><i class="material-icons ms-0">edit</i></a>
-                                    <a href="javascript:void(0)" class="btn btn-danger btn-sm"><i class="material-icons ms-0">delete</i></a>
+                                    <a href="{{ route('categories.edit',['id' => $category->id]) }}" class="btn btn-warning btn-sm"><i class="material-icons ms-0">edit</i></a>
+                                    <a href="javascript:void(0)"
+                                       class="btn btn-danger btn-sm btnDelete"
+                                       data-name="{{ $category->name }}"
+                                       data-id="{{ $category->id }}">
+                                        <i class="material-icons ms-0">delete</i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -116,6 +121,7 @@
                 })
 
             });
+
             $(".btnChangeFeatureStatus").click(function (){
                 let categoryID = $(this).data('id');
                 $('#inputStatus').val(categoryID);
@@ -132,6 +138,39 @@
                     if (result.isConfirmed)
                     {
                         $('#statusChangeForm').attr("action","{{ route('category.changeFeatureStatus') }}");
+                        $('#statusChangeForm').submit();
+                    }
+                    else if (result.isDenied)
+                    {
+                        // Swal.fire('Herhangi Bir İşlem Yapılmadı', '', 'info')
+                        Swal.fire({
+                            title: "Bilgi",
+                            text: "Herhangi Bir İşlem Yapılmadı",
+                            confirmButtonText: "Tamam",
+                            icon: "info",
+                        });
+                    }
+                })
+
+            });
+
+            $(".btnDelete").click(function (){
+                let categoryID = $(this).data('id');
+                let categoryName = $(this).data('name');
+                $('#inputStatus').val(categoryID);
+
+                Swal.fire({
+                    title: categoryName + '\'i Silmek İstediğinize Emin Misiniz',
+                    showDenyButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'Evet',
+                    denyButtonText: `Hayır`,
+                    cancelButtonText: 'İptal'
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed)
+                    {
+                        $('#statusChangeForm').attr("action","{{ route('categories.delete') }}");
                         $('#statusChangeForm').submit();
                     }
                     else if (result.isDenied)
