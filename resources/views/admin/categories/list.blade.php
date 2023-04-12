@@ -76,6 +76,7 @@
                     @endforeach
                 </x-slot:rows>
             </x-bootstrap.table>
+            {{ $list->links() }}
         </x-slot:body>
 
     </x-bootstrap.card>
