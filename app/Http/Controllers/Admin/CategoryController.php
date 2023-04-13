@@ -5,19 +5,60 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryStoreRequest;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $parentCategories = Category::all();
+        $users = User::all();
+
+        $parentID = $request->parent_id;
+        $userID = $request->user_id;
+
+        /* $categoryQuery = Category::with(["parentCategory:id,name","user"]);
+        if (!is_null($parentID))
+        {
+            $categoryQuery->where("parent_id", $parentID);
+        }
+        $categoryQuery->paginate(5);
+
+        Alttaki işlemlere alternatif olarak kullanılabilir.
+        */
+
         $categories = Category::with(["parentCategory:id,name", 'user'])
+            ->where(function ($query) use ($parentID, $userID) {
+                if (!is_null($parentID))
+                {
+                    $query->where('parent_id', $parentID);
+                }
+
+                if (!is_null($userID))
+                {
+                    $query->where('user_id', $userID);
+                }
+            })
+            ->name($request->name)
+            ->description($request->description)
+            ->slug($request->slug)
+            ->order($request->order)
+            ->status($request->status)
+            ->featureStatus($request->feature_status)
+            ->user($request->user_id)
+            ->parentCategory($request->parent_id)
             ->orderBy("order", "DESC")
             ->paginate(5);
 //            ->get();
 
-        return view("admin.categories.list", ['list' => $categories]);
+        return view("admin.categories.list", [
+            "list" => $categories,
+            "users" => $users,
+            "parentCategories" => $parentCategories
+        ]);
+
     }
 
     public function create()

@@ -5,8 +5,9 @@
 @endsection
 
 @section("css")
+    <link rel="stylesheet" href="{{ asset("assets/plugins/select2/css/select2.min.css") }}">
     <style>
-        .table-hover>tbody>tr:hover {
+        .table-hover > tbody > tr:hover {
             --bs-table-hover-bg: transparent;
             background: #b3dafb;
         }
@@ -22,9 +23,68 @@
         </x-slot:header>
 
         <x-slot:body>
+            <form action="">
+                <div class="row">
+                    <div class="col-3 my-2">
+                        <input type="text" class="form-control" placeholder="Name" name="name"
+                               value="{{ request()->get("name") }}">
+                    </div>
+                    <div class="col-3 my-2">
+                        <input type="text" class="form-control" placeholder="Slug" name="slug"
+                               value="{{ request()->get("slug") }}">
+                    </div>
+                    <div class="col-3 my-2">
+                        <input type="text" class="form-control" placeholder="Description" name="description"
+                               value="{{ request()->get("description") }}">
+                    </div>
+                    <div class="col-3 my-2">
+                        <input type="text" class="form-control" placeholder="Order" name="order"
+                               value="{{ request()->get("order") }}">
+                    </div>
+                    <div class="col-3 my-2">
+                        <select class="js-states form-control" id="selectParentCategory" tabindex="-1"
+                                style="display: none; width: 100%" name="parent_id">
+                            <option value="{{ null }}">Üst Kategori Seçin</option>
+                            @foreach($parentCategories as $parent)
+                                <option
+                                    value="{{ $parent->id }}" {{ request()->get("parent_id") == $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-3 my-2">
+                        <select class="form-select" name="user_id">
+                            <option value="{{ null }}">Users</option>
+                            @foreach($users as $user)
+                                <option
+                                    value="{{ $user->id }}" {{ request()->get("user_id") == $user->id ? 'selected' : '' }} >{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-3 my-2">
+                        <select class="form-select" name="status" aria-label="Status">
+                            <option value="{{ null }}">Status</option>
+                            <option value="0" {{ request()->get("status") === "0" ? "selected" : "" }}>Pasif</option>
+                            <option value="1" {{ request()->get("status") === "1" ? "selected" : "" }}>Aktif</option>
+                        </select>
+                    </div>
+                    <div class="col-3 my-2">
+                        <select class="form-select" name="feature_status" aria-label="Feature Status">
+                            <option value="{{ null }}">Feature Status</option>
+                            <option value="0" {{ request()->get("feature_status") === "0" ? "selected" : "" }}>Pasif</option>
+                            <option value="1" {{ request()->get("feature_status") === "1" ? "selected" : "" }}>Aktif</option>
+                        </select>
+                    </div>
+                    <hr>
+                    <div class="col-6 mb-2 d-flex">
+                        <button class="btn btn-primary w-50 me-4" type="submit">Filtrele</button>
+                        <button class="btn btn-warning w-50 me-4" type="submit">Filtreyi Temizle</button>
+                    </div>
+                    <hr>
+                </div>
+            </form>
             <x-bootstrap.table
-            :class="'table-striped table-hover'"
-            :is-responsive="1"
+                :class="'table-striped table-hover'"
+                :is-responsive="1"
             >
                 <x-slot:columns>
                     <th scope="col">Name</th>
@@ -57,13 +117,14 @@
                                     <a href="javascript:void(0)" data-id="{{ $category->id }}" class="btn btn-danger btn-sm btnChangeFeatureStatus">Pasif</a>
                                 @endif
                             </td>
-                            <td>{{ substr($category->description, 0, 20) }}</td>
+                            <td title="{{ $category->description }}">{{ substr($category->description, 0, 20) }}</td>
                             <td>{{ $category->order }}</td>
                             <td>{{ $category->parentCategory?->name }}</td>
                             <td>{{ $category->user->name }}</td>
                             <td>
                                 <div class="d-flex">
-                                    <a href="{{ route('categories.edit',['id' => $category->id]) }}" class="btn btn-warning btn-sm"><i class="material-icons ms-0">edit</i></a>
+                                    <a href="{{ route('categories.edit',['id' => $category->id]) }}"
+                                       class="btn btn-warning btn-sm"><i class="material-icons ms-0">edit</i></a>
                                     <a href="javascript:void(0)"
                                        class="btn btn-danger btn-sm btnDelete"
                                        data-name="{{ $category->name }}"
@@ -76,7 +137,8 @@
                     @endforeach
                 </x-slot:rows>
             </x-bootstrap.table>
-            {{ $list->links() }}
+{{--            {{ $list->onEachside(2)->links() }}--}}
+            {{ $list->appends(request()->all())->onEachside(2)->links() }}
         </x-slot:body>
 
     </x-bootstrap.card>
@@ -89,9 +151,12 @@
 @endsection
 
 @section("js")
+    <script src="{{ asset("assets/plugins/select2/js/select2.full.min.js") }}"></script>
+    <script src="{{ asset("assets/js/pages/select2.js") }}"></script>
     <script>
-        $(document).ready(function (){
-            $(".btnChangeStatus").click(function (){
+        $(document).ready(function () {
+
+            $(".btnChangeStatus").click(function () {
                 let categoryID = $(this).data('id');
                 $('#inputStatus').val(categoryID);
 
@@ -104,13 +169,10 @@
                     cancelButtonText: 'İptal'
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
-                    if (result.isConfirmed)
-                    {
-                        $('#statusChangeForm').attr("action","{{ route('category.changeStatus') }}");
+                    if (result.isConfirmed) {
+                        $('#statusChangeForm').attr("action", "{{ route('category.changeStatus') }}");
                         $('#statusChangeForm').submit();
-                    }
-                    else if (result.isDenied)
-                    {
+                    } else if (result.isDenied) {
                         // Swal.fire('Herhangi Bir İşlem Yapılmadı', '', 'info')
                         Swal.fire({
                             title: "Bilgi",
@@ -123,7 +185,7 @@
 
             });
 
-            $(".btnChangeFeatureStatus").click(function (){
+            $(".btnChangeFeatureStatus").click(function () {
                 let categoryID = $(this).data('id');
                 $('#inputStatus').val(categoryID);
 
@@ -136,13 +198,10 @@
                     cancelButtonText: 'İptal'
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
-                    if (result.isConfirmed)
-                    {
-                        $('#statusChangeForm').attr("action","{{ route('category.changeFeatureStatus') }}");
+                    if (result.isConfirmed) {
+                        $('#statusChangeForm').attr("action", "{{ route('category.changeFeatureStatus') }}");
                         $('#statusChangeForm').submit();
-                    }
-                    else if (result.isDenied)
-                    {
+                    } else if (result.isDenied) {
                         // Swal.fire('Herhangi Bir İşlem Yapılmadı', '', 'info')
                         Swal.fire({
                             title: "Bilgi",
@@ -155,7 +214,7 @@
 
             });
 
-            $(".btnDelete").click(function (){
+            $(".btnDelete").click(function () {
                 let categoryID = $(this).data('id');
                 let categoryName = $(this).data('name');
                 $('#inputStatus').val(categoryID);
@@ -169,13 +228,10 @@
                     cancelButtonText: 'İptal'
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
-                    if (result.isConfirmed)
-                    {
-                        $('#statusChangeForm').attr("action","{{ route('categories.delete') }}");
+                    if (result.isConfirmed) {
+                        $('#statusChangeForm').attr("action", "{{ route('categories.delete') }}");
                         $('#statusChangeForm').submit();
-                    }
-                    else if (result.isDenied)
-                    {
+                    } else if (result.isDenied) {
                         // Swal.fire('Herhangi Bir İşlem Yapılmadı', '', 'info')
                         Swal.fire({
                             title: "Bilgi",
@@ -187,6 +243,8 @@
                 })
 
             });
+
+            $('#selectParentCategory').select2();
         });
     </script>
 @endsection
