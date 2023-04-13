@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\Admin\ArticleController;
 use \App\Http\Controllers\Admin\CategoryController;
@@ -14,14 +15,11 @@ use \App\Http\Controllers\Admin\CategoryController;
 |
 */
 
-Route::prefix("admin")
-//    ->middleware("language")
-    ->group(function ()
-    {
-
+Route::prefix("admin")->middleware("auth")->group(function ()
+{
     Route::get('/', function () {
         return view('admin.index');
-    })->name("home");
+    })->name("admin.index");
 
     Route::get('articles',[ArticleController::class, "index"])->name("article.index");
     Route::get('articles/create',[ArticleController::class, "create"])->name("article.create");
@@ -35,3 +33,15 @@ Route::prefix("admin")
     Route::get('categories/{id}/edit',[CategoryController::class, "edit"])->name("categories.edit")->whereNumber("id");
     Route::post('categories/{id}/edit',[CategoryController::class, "update"])->whereNumber("id");
 });
+
+Route::get('/', function () {
+//    return view('admin.index');
+})->name("home");
+
+
+Route::get('/login',[LoginController::class, "showLogin"])->name("login");
+Route::post('/login',[LoginController::class, "login"]);
+Route::post('/logout',[LoginController::class, "logout"])->name("logout");
+
+Route::get('/register',[LoginController::class, "showRegister"])->name("register");
+Route::post('/register',[LoginController::class, "register"]);
