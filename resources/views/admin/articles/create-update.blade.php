@@ -1,12 +1,11 @@
 @extends("layouts.admin")
-
 @section("title")
     Makale {{ isset($article) ? "Güncelleme" : "Ekleme" }}
 @endsection
-
 @section("css")
     <link rel="stylesheet" href="{{ asset("assets/plugins/flatpickr/flatpickr.min.css") }}">
     <link rel="stylesheet" href="{{ asset("assets/plugins/summernote/summernote-lite.min.css") }}">
+
 @endsection
 
 @section("content")
@@ -19,20 +18,20 @@
             <p class="card-description">We offer some different custom styles for input fields to make your forms more beautiful.</p>
             <div class="example-container">
                 <div class="example-content">
-                    {{--@if($errors->any())
+                    @if($errors->any())
                         @foreach($errors->all() as $error)
-                            <div class="alert alert-danger">
-                                {{ $error }}
-                            </div>
+                            <div class="alert alert-danger">{{ $error }}</div>
                         @endforeach
-                    @endif--}}
-                    <form action="{{ isset($article) ? route("article.edit",['id' => $article->id]) : route("article.create") }}" method="POST">
+                    @endif
+                    <form action="{{ isset($article) ? route('article.edit', ['id' => $article->id]) : route('article.create') }}"
+                          method="POST"
+                          enctype="multipart/form-data">
                         @csrf
-                        <label for="title" class="form-label">Makale Başlık</label>
+                        <label for="title" class="form-label">Makale Başlığı</label>
                         <input type="text"
                                class="form-control form-control-solid-bordered m-b-sm
                                @if($errors->has("title"))
-                                   border-danger
+                                    border-danger
                                @endif
                                "
                                placeholder="Makale Başlığı"
@@ -52,6 +51,7 @@
                                id="slug"
                                value="{{ isset($article) ? $article->slug : "" }}"
                         >
+
                         <label for="tags" class="form-label">Etiketler</label>
                         <input type="text"
                                class="form-control form-control-solid-bordered"
@@ -60,7 +60,7 @@
                                value="{{ isset($article) ? $article->tags : "" }}"
                                id="tags"
                         >
-                        <div class="form-text m-b-sm">Her bir etiketi virgüllerle ayırarak yazın</div>
+                        <div class="form-text m-b-sm">Herbir etiketi virgüllerle ayırarak yazın.</div>
 
                         <label for="category_id" class="form-label">Kategori</label>
                         <select
@@ -76,8 +76,8 @@
                             @endforeach
                         </select>
 
-                        <label for="summernote" class="form-label">İçerik Alanı</label>
-                        <div id="summernote" class="m-b-sm">Hello Summernote</div>
+                        <label for="summernote" class="form-label">İçerik</label>
+                        <textarea name="body" id="summernote" class="m-b-sm">Hello Summernote</textarea>
 
                         <label for="seo_keywords" class="form-label m-t-sm">Seo Anahtar Kelimeler</label>
                         <textarea
@@ -88,8 +88,7 @@
                             rows="5"
                             placeholder="Seo Keywords"
                             style="resize: none">{{ isset($article) ? $article->seo_keywords : "" }}</textarea>
-
-                        <label for="seo_description" class="form-label m-t-sm">Seo Açıklaması</label>
+                        <label for="seo_description" class="form-label m-t-sm">Seo Açıklama</label>
                         <textarea
                             class="form-control form-control-solid-bordered m-b-sm"
                             name="seo_description"
@@ -110,8 +109,13 @@
                         <input type="file" name="image" id="image" class="form-control" accept="image/png, image/jpeg, image/jpg">
                         <div class="form-text m-b-sm">Makale Görseli Maksimum 2mb olmalıdır</div>
 
+                        @if(isset($article) && $article->image)
+                            <img src="{{ asset($article->image) }}" alt="" class="img-fluid" style="max-height: 200px">
+                        @endif
+
+
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="status" value="1" id="status" {{ isset($article) && $article->status  ? "checked" : "" }}>
+                            <input class="form-check-input" type="checkbox" name="status" value="1" id="status" {{ isset($article) && $article->status  ? "checked" : "" }}>
                             <label class="form-check-label" for="status">
                                 Makale Sitede Aktif Olarak Görünsün mü?
                             </label>
@@ -123,24 +127,22 @@
                                 {{ isset($article) ? "Güncelle" : "Kaydet" }}
                             </button>
                         </div>
-
                     </form>
-
                 </div>
+            </div>
         </x-slot:body>
     </x-bootstrap.card>
-
 @endsection
 
 @section("js")
-    <script src="{{ asset("assets/js/pages/datepickers.js") }}"></script>
     <script src="{{ asset("assets/plugins/flatpickr/flatpickr.js") }}"></script>
+    <script src="{{ asset("assets/js/pages/datepickers.js") }}"></script>
     <script src="{{ asset("assets/plugins/summernote/summernote-lite.min.js") }}"></script>
     <script src="{{ asset("assets/js/pages/text-editor.js") }}"></script>
     <script>
         $("#publish_date").flatpickr({
-           enableTime: true,
-           dateFormat: "Y-m-d H:i",
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
         });
     </script>
 @endsection
