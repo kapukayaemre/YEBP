@@ -1,7 +1,7 @@
 @extends("layouts.admin")
 
 @section("title")
-    Makale {{ isset($category) ? "Güncelleme" : "Ekleme" }}
+    Kategori {{ isset($category) ? "Güncelleme" : "Ekleme" }}
 @endsection
 
 @section("css")
@@ -10,7 +10,7 @@
 @section("content")
     <x-bootstrap.card>
         <x-slot:header>
-            <h2 class="card-title">Makale {{ isset($category) ? "Güncelleme" : "Ekleme" }}</h2>
+            <h2 class="card-title">Kategori {{ isset($category) ? "Güncelleme" : "Ekleme" }}</h2>
         </x-slot:header>
 
         <x-slot:body>

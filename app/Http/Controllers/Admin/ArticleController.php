@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware("language");
-    }
 
     public function index()
     {
@@ -19,6 +16,7 @@ class ArticleController extends Controller
 
     public function create()
     {
-        return view("admin.articles.create-update");
+        $categories = Category::all();
+        return view("admin.articles.create-update", compact("categories"));
     }
 }
