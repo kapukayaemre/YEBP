@@ -180,6 +180,7 @@ class CategoryController extends Controller
         $category = Category::where("id", $categoryID)->first();
 
         if (is_null($category)) {
+
             $statusText = "Kategori Bulunamadı";
 
             alert()
