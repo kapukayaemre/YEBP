@@ -45,6 +45,11 @@ Route::get('/', function () {
 })->name("home");
 
 
+
+Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
+    \UniSharp\LaravelFilemanager\Lfm::routes();
+});
+
 Route::get('/login',[LoginController::class, "showLogin"])->name("login");
 Route::post('/login',[LoginController::class, "login"]);
 Route::post('/logout',[LoginController::class, "logout"])->name("logout");
