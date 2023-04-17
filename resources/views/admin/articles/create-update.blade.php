@@ -15,7 +15,8 @@
         </x-slot:header>
 
         <x-slot:body>
-            <p class="card-description">We offer some different custom styles for input fields to make your forms more beautiful.</p>
+            <p class="card-description">We offer some different custom styles for input fields to make your forms more
+                beautiful.</p>
             <div class="example-container">
                 <div class="example-content">
                     @if($errors->any())
@@ -23,9 +24,11 @@
                             <div class="alert alert-danger">{{ $error }}</div>
                         @endforeach
                     @endif
-                    <form action="{{ isset($article) ? route('article.edit', ['id' => $article->id]) : route('article.create') }}"
-                          method="POST"
-                          enctype="multipart/form-data">
+                    <form
+                        action="{{ isset($article) ? route('article.edit', ['id' => $article->id]) : route('article.create') }} "
+                        method="POST"
+                        enctype="multipart/form-data"
+                        id="articleForm">
                         @csrf
                         <label for="title" class="form-label">Makale Başlığı</label>
                         <input type="text"
@@ -70,7 +73,8 @@
                         >
                             <option value="{{ null }}">Kategori Seçimi</option>
                             @foreach($categories as $item)
-                                <option value="{{ $item->id }}" {{ isset($article) && $article->category_id == $item->id ? "selected" : "" }}>
+                                <option
+                                    value="{{ $item->id }}" {{ isset($article) && $article->category_id == $item->id ? "selected" : "" }}>
                                     {{ $item->name }}
                                 </option>
                             @endforeach
@@ -107,7 +111,8 @@
                                placeholder="Ne zaman yayınlansın?">
 
                         <label for="image" class="form-label m-t-sm">Makale Görseli</label>
-                        <input type="file" name="image" id="image" class="form-control" accept="image/png, image/jpeg, image/jpg">
+                        <input type="file" name="image" id="image" class="form-control"
+                               accept="image/png, image/jpeg, image/jpg">
                         <div class="form-text m-b-sm">Makale Görseli Maksimum 2mb olmalıdır</div>
 
                         @if(isset($article) && $article->image)
@@ -116,7 +121,8 @@
 
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="status" value="1" id="status" {{ isset($article) && $article->status  ? "checked" : "" }}>
+                            <input class="form-check-input" type="checkbox" name="status" value="1"
+                                   id="status" {{ isset($article) && $article->status  ? "checked" : "" }}>
                             <label class="form-check-label" for="status">
                                 Makale Sitede Aktif Olarak Görünsün mü?
                             </label>
@@ -124,7 +130,7 @@
 
                         <hr>
                         <div class="col-6 mx-auto mt-2">
-                            <button type="submit" class="btn btn-success btn-rounded w-100">
+                            <button type="button" class="btn btn-success btn-rounded w-100" id="btnSave">
                                 {{ isset($article) ? "Güncelle" : "Kaydet" }}
                             </button>
                         </div>
@@ -146,4 +152,47 @@
             dateFormat: "Y-m-d H:i",
         });
     </script>
+
+    <script>
+        let title = $('#title');
+        let tags = $('#tags');
+        let category_id = $('#category_id');
+        $(document).ready(function ()
+        {
+            $('#btnSave').click(function () {
+                if(title.val().trim() === "" || title.val().trim() == null)
+                {
+                    Swal.fire({
+                        title: "Uyarı",
+                        text: "Makale başlığı boş geçilemez",
+                        confirmButtonText: 'Tamam',
+                        icon: "info"
+                    });
+                }
+                else if(tags.val().trim().length < 3)
+                {
+                    Swal.fire({
+                        title: "Uyarı",
+                        text: "Etiket alanı boş geçilemez",
+                        confirmButtonText: 'Tamam',
+                        icon: "info"
+                    });
+                }
+                else if(category_id.val().trim() == null || category_id.val().trim() === "")
+                {
+                    Swal.fire({
+                        title: "Uyarı",
+                        text: "Kategori seçin",
+                        confirmButtonText: 'Tamam',
+                        icon: "info"
+                    });
+                }
+                else
+                {
+                    $("#articleForm").submit();
+                }
+            });
+        });
+    </script>
+
 @endsection

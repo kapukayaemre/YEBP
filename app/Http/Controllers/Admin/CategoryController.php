@@ -13,34 +13,34 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
+
         $parentCategories = Category::all();
         $users = User::all();
 
         $parentID = $request->parent_id;
         $userID = $request->user_id;
 
-        /* $categoryQuery = Category::with(["parentCategory:id,name","user"]);
-        if (!is_null($parentID))
-        {
-            $categoryQuery->where("parent_id", $parentID);
-        }
-        $categoryQuery->paginate(5);
+//        $categoryQuery = Category::with(["parentCategory:id,name", 'user']);
+//
+//        if (!is_null($parentID))
+//        {
+//            $categoryQuery->where("parent_id", $parentID);
+//        }
+//        $categoryQuery->paginate(5);
 
-        Alttaki işlemlere alternatif olarak kullanılabilir.
-        */
 
         $categories = Category::with(["parentCategory:id,name", 'user'])
-            ->where(function ($query) use ($parentID, $userID) {
-                if (!is_null($parentID))
-                {
-                    $query->where('parent_id', $parentID);
-                }
-
-                if (!is_null($userID))
-                {
-                    $query->where('user_id', $userID);
-                }
-            })
+//            ->where(function($query) use ($parentID, $userID){
+//                if (!is_null($parentID))
+//                {
+//                    $query->where('parent_id', $parentID);
+//                }
+//                if (!is_null($userID))
+//                {
+//                    $query->where('user_id', $userID);
+//                }
+//            })
+//            ->where("parent_id", $parentID)
             ->name($request->name)
             ->description($request->description)
             ->slug($request->slug)
@@ -51,50 +51,75 @@ class CategoryController extends Controller
             ->parentCategory($request->parent_id)
             ->orderBy("order", "DESC")
             ->paginate(5);
-//            ->get();
 
         return view("admin.categories.list", [
-            "list" => $categories,
+            'list' => $categories,
             "users" => $users,
             "parentCategories" => $parentCategories
         ]);
-
     }
 
     public function create()
     {
         $categories = Category::all();
-        return view("admin.categories.create-update", compact('categories'));
+
+        return view("admin.categories.create-update", compact("categories"));
     }
 
     public function store(CategoryStoreRequest $request)
     {
         $slug = Str::slug($request->slug);
 
-        try {
-            $category = new Category();
-            $category->name = $request->name;
-            $category->slug = is_null($this->slugCheck($slug)) ? ($slug) : Str::slug($slug . time());
-            $category->description = $request->description;
-            $category->status = $request->status ? 1 : 0;
-            $category->parent_id = $request->parent_id;
-            $category->feature_status = $request->feature_status ? 1 : 0;
-            $category->seo_keywords = $request->seo_keywords;
+        try
+        {
+            $category                  = new Category();
+            $category->name            = $request->name;
+            $category->slug            = is_null($this->slugCheck($slug)) ? $slug : Str::slug($slug . time());
+            $category->description     = $request->description;
+            $category->status          = $request->status ? 1 : 0;
+            $category->parent_id       = $request->parent_id;
+            $category->feature_status  = $request->feature_status ? 1 : 0;
+            $category->seo_keywords    = $request->seo_keywords;
             $category->seo_description = $request->seo_description;
-            $category->user_id = random_int(1, 10);
-            $category->order = $request->order;
+            $category->user_id         = auth()->id();
+            $category->order           = $request->order;
+
+
+
+            if (!is_null($request->image))
+            {
+                $imageFile = $request->file("image");
+                $originalName = $imageFile->getClientOriginalName();
+                $originalExtension = $imageFile->getClientOriginalExtension();
+                $explodeName = explode(".", $originalName)[0];
+                $fileName = Str::slug($explodeName) . "." . $originalExtension;
+
+                $folder = "categories";
+                $publicPath = "storage/" . $folder;
+
+                if (file_exists(public_path($publicPath . $fileName)))
+                {
+                    return redirect()
+                        ->back()
+                        ->withErrors([
+                            'image' => "Aynı görsel daha önce yüklenmiştir."
+                        ]);
+                }
+
+                $category->image = $publicPath . "/" . $fileName;
+                $imageFile->storeAs($folder,  $fileName);
+            }
+
+
             $category->save();
-        } catch (\Exception $exception){
-            abort(404,$exception->getMessage());
+        }
+        catch (\Exception $exception)
+        {
+            abort(404, $exception->getMessage());
         }
 
-        alert()
-            ->success('Başarılı', 'Kategori Kayıt Edildi')
-            ->showConfirmButton('Tamam', '#3085d6')
-            ->autoClose(5000);
-
+        alert()->success('Başarılı', "Kategori Kaydedildi")->showConfirmButton('Tamam', '#3085d6')->autoClose(5000);
         return redirect()->back();
-
     }
 
     public function slugCheck(string $text)
@@ -104,10 +129,10 @@ class CategoryController extends Controller
 
     public function changeStatus(Request $request)
     {
-        $request->validate([
-            'id' => ['required', 'integer', "exists:categories"]
-        ]);
+        $request->validate(['id' => ['required', 'integer', "exists:categories"]]);
+
         $categoryID = $request->id;
+
 
         $category = Category::where("id", $categoryID)->first();
 
@@ -118,22 +143,19 @@ class CategoryController extends Controller
 
         $statusText = ($oldStatus == 1 ? "Aktif" : "Pasif") . "'ten " . ($category->status == 1 ? "Aktif" : "Pasif");
 
-        alert()
-            ->success('Başarılı', $category->name . " status " . $statusText . " olarak güncellendi")
-            ->showConfirmButton('Tamam', '#3085d6')
-            ->autoClose(5000);
+        alert()->success('Başarılı', $category->name . " status " . $statusText . " olarak güncellendi")->showConfirmButton('Tamam', '#3085d6')->autoClose(5000);
 
-//        return redirect()->route("category.index");
+        //        return redirect()->route("category.index");
         return redirect()->back();
 
     }
 
     public function changeFeatureStatus(Request $request)
     {
-        $request->validate([
-            'id' => ['required', 'integer', "exists:categories"]
-        ]);
+        $request->validate(['id' => ['required', 'integer', "exists:categories"]]);
+
         $categoryID = $request->id;
+
 
         $category = Category::where("id", $categoryID)->first();
 
@@ -144,64 +166,55 @@ class CategoryController extends Controller
 
         $statusText = ($oldStatus == 1 ? "Aktif" : "Pasif") . "'ten " . ($category->feature_status == 1 ? "Aktif" : "Pasif");
 
-        alert()
-            ->success('Başarılı', $category->name . " feature status değeri " . $statusText . " olarak güncellendi")
-            ->showConfirmButton('Tamam', '#3085d6')
-            ->autoClose(5000);
+        alert()->success('Başarılı', $category->name . " feature status değeri " . $statusText . " olarak güncellendi")->showConfirmButton('Tamam', '#3085d6')->autoClose(5000);
 
-        return redirect()->back();
+        return redirect()->route("category.index");
 
     }
 
     public function delete(Request $request)
     {
-        $request->validate([
-            'id' => ['required', 'integer', "exists:categories"]
-        ]);
+        $request->validate(['id' => ['required', 'integer', "exists:categories"]]);
 
         $categoryID = $request->id;
+
         Category::where("id", $categoryID)->delete();
 
         $statusText = "Kategori Silindi";
 
-        alert()
-            ->success('Başarılı', $statusText)
-            ->showConfirmButton('Tamam', '#3085d6')
-            ->autoClose(5000);
+        alert()->success('Başarılı', $statusText)->showConfirmButton('Tamam', '#3085d6');
 
-        return redirect()->back();
+        return redirect()->route("category.index");
 
     }
 
     public function edit(Request $request)
     {
         $categories = Category::all();
+
         $categoryID = $request->id;
+
         $category = Category::where("id", $categoryID)->first();
 
-        if (is_null($category)) {
+        if (is_null($category))
+        {
+            $statusText = "Kategori bulunamadı";
 
-            $statusText = "Kategori Bulunamadı";
-
-            alert()
-                ->info('Bilgi', $statusText)
-                ->showConfirmButton('Tamam', '#3085d6')
-                ->autoClose(5000);
-
-            return redirect()->route("category.index");
-
+            alert()->error('Hata', $statusText)->showConfirmButton('Tamam', '#3085d6')->autoClose(5000);
+            return redirect()->route('category.index');
         }
 
-        return view("admin.categories.create-update", compact("category","categories"));
+        return view("admin.categories.create-update", compact("category", 'categories'));
 
     }
 
     public function update(CategoryStoreRequest $request)
     {
-        $slug = Str::slug($request->slug);
+
+        $slug      = Str::slug($request->slug);
         $slugCheck = $this->slugCheck($slug);
 
-        $category = Category::find($request->id);
+        $category       = Category::find($request->id);
         $category->name = $request->name;
         if ((!is_null($slugCheck) && $slugCheck->id == $category->id) || is_null($slugCheck))
         {
@@ -216,22 +229,50 @@ class CategoryController extends Controller
             $category->slug = Str::slug($slug . time());
         }
 
-        $category->description = $request->description;
-        $category->status = $request->status ? 1 : 0;
-        $category->parent_id = $request->parent_id;
-        $category->feature_status = $request->feature_status ? 1 : 0;
-        $category->seo_keywords = $request->seo_keywords;
+
+        $category->description     = $request->description;
+        $category->status          = $request->status ? 1 : 0;
+        $category->parent_id       = $request->parent_id;
+        $category->feature_status  = $request->feature_status ? 1 : 0;
+        $category->seo_keywords    = $request->seo_keywords;
         $category->seo_description = $request->seo_description;
-//        $category->user_id = random_int(1, 10);
+        //        $category->user_id         = random_int(1, 10);
         $category->order = $request->order;
+
+        if (!is_null($request->image))
+        {
+            $imageFile = $request->file("image");
+            $originalName = $imageFile->getClientOriginalName();
+            $originalExtension = $imageFile->getClientOriginalExtension();
+            $explodeName = explode(".", $originalName)[0];
+            $fileName = Str::slug($explodeName) . "." . $originalExtension;
+
+            $folder = "categories";
+            $publicPath = "storage/" . $folder;
+
+            if (file_exists(public_path($publicPath . $fileName)))
+            {
+                return redirect()
+                    ->back()
+                    ->withErrors([
+                        'image' => "Aynı görsel daha önce yüklenmiştir."
+                    ]);
+            }
+
+            if (file_exists(public_path($category->image)))
+            {
+                \File::delete(public_path($category->image));
+            }
+            $category->image = $publicPath . "/" . $fileName;
+            $imageFile->storeAs($folder, $fileName);
+
+        }
+
 
         $category->save();
 
-        alert()
-            ->success('Başarılı', 'Kategori Güncellendi')
-            ->showConfirmButton('Tamam', '#3085d6')
-            ->autoClose(5000);
-
-        return redirect()->route("category.index");    }
+        alert()->success('Başarılı', "Kategori güncellendi")->showConfirmButton('Tamam', '#3085d6')->autoClose(5000);
+        return redirect()->route("category.index");
+    }
 
 }
