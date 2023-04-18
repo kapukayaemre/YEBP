@@ -25,10 +25,10 @@ class ArticleController extends Controller
         $list = Article::query()
             ->with(["category", "user"])
             ->where(function ($query) use ($request) {
-                $query->orWhere("title", "LIKE", "%" . $request->search_text)
-                    ->orWhere("slug", "LIKE", "%" . $request->search_text)
-                    ->orWhere("body", "LIKE", "%" . $request->search_text)
-                    ->orWhere("tags", "LIKE", "%" . $request->search_text);
+                $query->orWhere("title", "LIKE", "%" . $request->search_text . "%")
+                    ->orWhere("slug", "LIKE", "%" . $request->search_text . "%")
+                    ->orWhere("body", "LIKE", "%" . $request->search_text . "%")
+                    ->orWhere("tags", "LIKE", "%" . $request->search_text . "%");
             })
             ->status($request->status)
             ->category($request->category_id)
