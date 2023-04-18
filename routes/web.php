@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\Admin\ArticleController;
 use \App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\FrontController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -47,9 +48,7 @@ Route::prefix("admin")->middleware("auth")->group(function ()
 
 });
 
-Route::get('/', function () {
-//    return view('admin.index');
-})->name("home");
+Route::get('/', [FrontController::class,"home"])->name("home");
 
 
 
