@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Settings;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class FrontController extends Controller
@@ -15,22 +16,34 @@ class FrontController extends Controller
         $categories = Category::query()->where("status",1)->get();
         return view("front.index",compact("settings","categories"));
     }
-
     public function category(Request $request, string $slug)
     {
         $settings = Settings::first();
-        $categories = Category::query()->where("status",1)->get();
+        $categories = Category::query()->where("status", 1)->get();
 
-        $category = Category::query()->with("articlesActive")->where("slug",$slug)->first();
+//        $category = Category::query()->with("articlesActive")->where("slug", $slug)->first();
+//        $articles = $category->articlesActive()->paginate(2);
+//        $articles = $category->articlesActive()->with(["user", "category"])->paginate(2);
+//        $articles->load(['user', 'category']);
 
-//        $articles = $category->articlesActive()->with(["user","category"])->paginate(2);
         $articles = Article::query()
-            ->with(['category:id,name','user:id,name'])
-            ->whereHas("category",function ($query) use ($slug) {
-            $query->where("slug",$slug);
-        })->paginate(1);
+            ->with(['category:id,name', "user:id,name,username"])
+            ->whereHas("category", function($query) use ($slug){
+                $query->where("slug", $slug);
+            })->paginate(3);
 
-        return view("front.article-list",compact("category","categories","settings","articles"));
+        return view("front.article-list", compact( "categories", "settings", "articles"));
 
     }
+
+    public function articleDetail(Request $request, string $username, string $articleSlug)
+    {
+        $settings = Settings::first();
+        $categories = Category::query()->where("status", 1)->get();
+        $article = Article::query()->with("user")->where("slug",$articleSlug)->first();
+
+        return view("front.article-detail", compact("article","settings","categories"));
+    }
+
+
 }

@@ -50,6 +50,7 @@ Route::prefix("admin")->middleware("auth")->group(function ()
 
 Route::get('/', [FrontController::class,"home"])->name("home");
 Route::get("/kategoriler/{slug:categories}", [FrontController::class, "category"])->name("front.category");
+Route::get("/{username:users}/{slug:articles}", [FrontController::class, "articleDetail"])->name("front.articleDetail");
 
 
 
