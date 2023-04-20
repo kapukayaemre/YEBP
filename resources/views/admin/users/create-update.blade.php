@@ -23,7 +23,7 @@
                         @endforeach
                     @endif
                     <form
-                        action="{{ isset($user) ? route('user.edit', ['id' => $user->id]) : route('user.create') }} "
+                        action="{{ isset($user) ? route('user.edit', ['user' => $user->username]) : route('user.create') }} "
                         method="POST"
                         enctype="multipart/form-data"
                         id="userform">
