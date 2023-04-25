@@ -54,13 +54,10 @@
 
             <div class="article-authors mt-5">
                 <div class="bg-white p-4 d-flex justify-content-between align-items-center shadow-sm">
-                    <img src="assets/front/image/profile1.png" alt="" width="75" height="75">
-                    <div class="px-5">
-                        <h4><a href="">Sercan Özen</a></h4>
-                        <p class="text-secondary">Lorem ipsum dolor sit amet, consectetur adipisicing elit. A accusantium
-                            consequatur et fuga fugiat, inventore laboriosam, maxime natus praesentium quae
-                            reiciendis ullam. A dolor expedita facere, pariatur quibusdam veritatis
-                            vitae.</p>
+                    <img src="{{ asset($article->user->image) }}" alt="" width="75" height="75">
+                    <div class="px-5 me-auto">
+                        <h4 class="mt-3"><a href="">{{ $article->user->name }}</a></h4>
+                        {!! $article->user->about !!}
                     </div>
                 </div>
             </div>
@@ -69,7 +66,8 @@
 
         <section class="article-responses mt-4">
             <div class="response-form bg-white shadow-sm rounded-1 p-4" style="display: none">
-                <form action="" method="POST">
+                <form action="{{ route("article.comment", ['article' => $article->id]) }}" method="POST">
+                    @csrf
                     <div class="row">
                         <div class="col-12">
                             <h5>Cevabınız</h5>
@@ -77,13 +75,13 @@
                         </div>
 
                         <div class="col-md-6">
-                            <input type="text" class="form-control" placeholder="Adınız" name="fullname" required>
+                            <input type="text" class="form-control" placeholder="Adınız" name="name" required>
                         </div>
                         <div class="col-md-6">
                             <input type="email" class="form-control" placeholder="Email Adresi" name="email" required>
                         </div>
                         <div class="col-12 mt-3">
-                            <textarea name="message" id="message" cols="30" rows="5" class="form-control" placeholder="Mesajınız"></textarea>
+                            <textarea name="comment" id="comment" cols="30" rows="5" class="form-control" placeholder="Mesajınız"></textarea>
                         </div>
                         <div class="col-md-4">
                             <button class="btn-response align-items-center d-flex mt-3">
