@@ -20,7 +20,11 @@
                     Dashboard
                 </a>
             </li>
-            <li class="{{ Route::is("article.index") || Route::is("article.create") ? "open" : "" }}">
+            <li class="{{
+            Route::is("article.index") ||
+            Route::is("article.create") ||
+            Route::is("article.comment.list") ||
+            Route::is("article.pending-approval") ? "open" : "" }}">
                 <a href="" class="">
                     <i class="material-icons-two-tone">article</i>
                     Makale Yönetimi
@@ -30,13 +34,21 @@
                 </a>
                 <ul class="sub-menu" style="">
                     <li>
-                        <a href="{{ route('article.create') }}" class="{{ Route::is("article.create") ? "active" : "" }}">Makale Ekle</a>
+                        <a href="{{ route('article.create') }}"
+                           class="{{ Route::is("article.create") ? "active" : "" }}">Makale Ekle</a>
                     </li>
                     <li>
-                        <a href="{{ route('article.index') }}" class="{{ Route::is("article.index") ? "active" : "" }}">Makale Listesi</a>
+                        <a href="{{ route('article.index') }}" class="{{ Route::is("article.index") ? "active" : "" }}">Makale
+                            Listesi</a>
                     </li>
                     <li>
-                        <a href="{{ route('article.pending-approval') }}" class="{{ Route::is("article.pending-approval") ? "active" : "" }}">Onay Bekleyen Yorumlar</a>
+                        <a href="{{ route('article.comment.list') }}"
+                           class="{{ Route::is("article.comment.list") ? "active" : "" }}">Yorum Listesi</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('article.pending-approval') }}"
+                           class="{{ Route::is("article.pending-approval") ? "active" : "" }}">Onay Bekleyen
+                            Yorumlar</a>
                     </li>
                 </ul>
             </li>
@@ -50,10 +62,12 @@
                 </a>
                 <ul class="sub-menu" style="">
                     <li>
-                        <a href="{{ route('category.create') }}" class="{{ Route::is("category.create") ? "active" : "" }}">Kategori Ekle</a>
+                        <a href="{{ route('category.create') }}"
+                           class="{{ Route::is("category.create") ? "active" : "" }}">Kategori Ekle</a>
                     </li>
                     <li>
-                        <a href="{{ route('category.index') }}" class="{{ Route::is("category.index") ? "active" : "" }}">Kategori Listesi</a>
+                        <a href="{{ route('category.index') }}"
+                           class="{{ Route::is("category.index") ? "active" : "" }}">Kategori Listesi</a>
                     </li>
                 </ul>
             </li>

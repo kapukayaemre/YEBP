@@ -15,10 +15,10 @@ class CategoryController extends Controller
     {
 
         $parentCategories = Category::all();
-        $users = User::all();
+        $users            = User::all();
 
         $parentID = $request->parent_id;
-        $userID = $request->user_id;
+        $userID   = $request->user_id;
 
 //        $categoryQuery = Category::with(["parentCategory:id,name", 'user']);
 //
@@ -53,8 +53,8 @@ class CategoryController extends Controller
             ->paginate(5);
 
         return view("admin.categories.list", [
-            'list' => $categories,
-            "users" => $users,
+            'list'             => $categories,
+            "users"            => $users,
             "parentCategories" => $parentCategories
         ]);
     }
@@ -70,8 +70,7 @@ class CategoryController extends Controller
     {
         $slug = Str::slug($request->slug);
 
-        try
-        {
+        try {
             $category                  = new Category();
             $category->name            = $request->name;
             $category->color           = $request->color;
@@ -86,20 +85,17 @@ class CategoryController extends Controller
             $category->order           = $request->order;
 
 
-
-            if (!is_null($request->image))
-            {
-                $imageFile = $request->file("image");
-                $originalName = $imageFile->getClientOriginalName();
+            if (!is_null($request->image)) {
+                $imageFile         = $request->file("image");
+                $originalName      = $imageFile->getClientOriginalName();
                 $originalExtension = $imageFile->getClientOriginalExtension();
-                $explodeName = explode(".", $originalName)[0];
-                $fileName = Str::slug($explodeName) . "." . $originalExtension;
+                $explodeName       = explode(".", $originalName)[0];
+                $fileName          = Str::slug($explodeName) . "." . $originalExtension;
 
-                $folder = "categories";
+                $folder     = "categories";
                 $publicPath = "storage/" . $folder;
 
-                if (file_exists(public_path($publicPath . $fileName)))
-                {
+                if (file_exists(public_path($publicPath . $fileName))) {
                     return redirect()
                         ->back()
                         ->withErrors([
@@ -108,14 +104,12 @@ class CategoryController extends Controller
                 }
 
                 $category->image = $publicPath . "/" . $fileName;
-                $imageFile->storeAs($folder,  $fileName);
+                $imageFile->storeAs($folder, $fileName);
             }
 
 
             $category->save();
-        }
-        catch (\Exception $exception)
-        {
+        } catch (\Exception $exception) {
             abort(404, $exception->getMessage());
         }
 
@@ -197,8 +191,7 @@ class CategoryController extends Controller
 
         $category = Category::where("id", $categoryID)->first();
 
-        if (is_null($category))
-        {
+        if (is_null($category)) {
             $statusText = "Kategori bulunamadı";
 
             alert()->error('Hata', $statusText)->showConfirmButton('Tamam', '#3085d6')->autoClose(5000);
@@ -217,16 +210,11 @@ class CategoryController extends Controller
 
         $category       = Category::find($request->id);
         $category->name = $request->name;
-        if ((!is_null($slugCheck) && $slugCheck->id == $category->id) || is_null($slugCheck))
-        {
+        if ((!is_null($slugCheck) && $slugCheck->id == $category->id) || is_null($slugCheck)) {
             $category->slug = $slug;
-        }
-        else if (!is_null($slugCheck) && $slugCheck->id != $category->id)
-        {
+        } else if (!is_null($slugCheck) && $slugCheck->id != $category->id) {
             $category->slug = Str::slug($slug . time());
-        }
-        else
-        {
+        } else {
             $category->slug = Str::slug($slug . time());
         }
 
@@ -241,19 +229,17 @@ class CategoryController extends Controller
         //        $category->user_id         = random_int(1, 10);
         $category->order = $request->order;
 
-        if (!is_null($request->image))
-        {
-            $imageFile = $request->file("image");
-            $originalName = $imageFile->getClientOriginalName();
+        if (!is_null($request->image)) {
+            $imageFile         = $request->file("image");
+            $originalName      = $imageFile->getClientOriginalName();
             $originalExtension = $imageFile->getClientOriginalExtension();
-            $explodeName = explode(".", $originalName)[0];
-            $fileName = Str::slug($explodeName) . "." . $originalExtension;
+            $explodeName       = explode(".", $originalName)[0];
+            $fileName          = Str::slug($explodeName) . "." . $originalExtension;
 
-            $folder = "categories";
+            $folder     = "categories";
             $publicPath = "storage/" . $folder;
 
-            if (file_exists(public_path($publicPath . $fileName)))
-            {
+            if (file_exists(public_path($publicPath . $fileName))) {
                 return redirect()
                     ->back()
                     ->withErrors([
@@ -261,8 +247,7 @@ class CategoryController extends Controller
                     ]);
             }
 
-            if (file_exists(public_path($category->image)))
-            {
+            if (file_exists(public_path($category->image))) {
                 \File::delete(public_path($category->image));
             }
             $category->image = $publicPath . "/" . $fileName;
