@@ -9,6 +9,7 @@ use App\Http\Requests\ArticleUpdateRequest;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\User;
+use App\Models\UserLikeArticle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -240,5 +241,41 @@ class ArticleController extends Controller
         return response()
             ->json(['status' => "error", "message" => "Makale bulunamadı"])
             ->setStatusCode(404);
+    }
+
+    public function favorite(Request $request)
+    {
+        $article = Article::query()->with(["articleLikes" => function($query) {
+            $query->where("user_id", auth()->id());
+
+        }
+        ])->where("id",$request->id)->firstOrFail();
+
+        if ($article->articleLikes()->count())
+        {
+            UserLikeArticle::query()
+                ->where("user_id", auth()->id())
+                ->where("article_id", $article->id)
+                ->delete();
+            $article->like_count--;
+            $process = 0;
+        }
+        else
+        {
+            UserLikeArticle::create([
+                'user_id' => auth()->id(),
+                'article_id' => $article->id
+            ]);
+
+            $article->like_count++;
+            $process = 1;
+        }
+
+
+        $article->save();
+
+        return response()
+            ->json(['status' => 'success', 'message' => 'Başarılı', 'like_count' => $article->like_count, "process" => $process])
+            ->setStatusCode(200);
     }
 }

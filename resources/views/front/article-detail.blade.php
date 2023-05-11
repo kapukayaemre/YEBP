@@ -43,10 +43,17 @@
         <section class="col-12 mt-4">
             <div class="article-items d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
-                    <a href="javascript:void(0)" class="favorite-article me-1">
+                    <a href="javascript:void(0)"
+                       class="favorite-article me-1"
+                       id="favoriteArticle"
+                       data-id="{{ $article->id }}"
+                       @if(!is_null($userLike))
+                           style="color: red"
+                       @endif
+                    >
                         <span class="material-icons-outlined">favorite</span>
                     </a>
-                    <span class="fw-light">100</span>
+                    <span class="fw-light" id="favoriteCount">{{ $article->like_count }}</span>
                 </div>
                 <a href="javascript:void(0)" class="btn-response btnArticleResponse">Cevap Ver</a>
 
@@ -82,7 +89,8 @@
                             <input type="email" class="form-control" placeholder="Email Adresi" name="email" required>
                         </div>
                         <div class="col-12 mt-3">
-                            <textarea name="comment" id="comment" cols="30" rows="5" class="form-control" placeholder="Mesajınız"></textarea>
+                            <textarea name="comment" id="comment" cols="30" rows="5" class="form-control"
+                                      placeholder="Mesajınız"></textarea>
                         </div>
                         <div class="col-md-4">
                             <button class="btn-response align-items-center d-flex mt-3">
@@ -126,18 +134,22 @@
                                 <div class="px-3">
                                     <div class="comment-title-date d-flex justify-content-between">
                                         <h4 class="mt-3"><a href="">{{ $name }}</a></h4>
-                                        <time datetime="{{ \Carbon\Carbon::parse($comment->created_at)->format("d-m-Y") }}">
+                                        <time
+                                            datetime="{{ \Carbon\Carbon::parse($comment->created_at)->format("d-m-Y") }}">
                                             {{ \Carbon\Carbon::parse($comment->created_at)->format("d-m-Y") }}
                                         </time>
                                     </div>
                                     <p class="text-secondary">{{ $comment->comment }}</p>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
-                                            <a href="javascript:void(0)" class="btn-response btnArticleResponseComment" data-id="{{ $comment->id }}">Cevap Ver</a>
+                                            <a href="javascript:void(0)" class="btn-response btnArticleResponseComment"
+                                               data-id="{{ $comment->id }}">Cevap Ver</a>
                                         </div>
                                         <div class="d-flex  align-items-center">
-                                            <a href="javascript:void(0)" class="like-comment"><span class="material-icons">thumb_up</span></a>
-                                            <a href="javascript:void(0)" class="like-comment"><span class="material-icons-outlined">thumb_up_off_alt</span></a> 12
+                                            <a href="javascript:void(0)" class="like-comment"><span
+                                                    class="material-icons">thumb_up</span></a>
+                                            <a href="javascript:void(0)" class="like-comment"><span
+                                                    class="material-icons-outlined">thumb_up_off_alt</span></a> 12
                                         </div>
                                     </div>
                                 </div>
@@ -145,49 +157,54 @@
                         </div>
 
                         @if($comment->children)
-                                <div class="articles-response-comment-wrapper">
-                                    @foreach($comment->children as $child)
-                                        @php
-                                            if ($child->user)
-                                            {
-                                                $childImage = $child->user->image;
-                                                $childName = $child->user->name;
+                            <div class="articles-response-comment-wrapper">
+                                @foreach($comment->children as $child)
+                                    @php
+                                        if ($child->user)
+                                        {
+                                            $childImage = $child->user->image;
+                                            $childName = $child->user->name;
 
-                                                if (!file_exists(public_path($childImage)))
-                                                {
-                                                    $childImage = $settings->default_comment_profile_image;
-                                                }
-                                            }
-                                            else
+                                            if (!file_exists(public_path($childImage)))
                                             {
                                                 $childImage = $settings->default_comment_profile_image;
-                                                $childName = $child->name;
                                             }
-                                        @endphp
-                                        <div class="article-comment bg-white p-2 mt-3 d-flex justify-content-between align-items-center shadow-sm">
-                                            <div class="col-md-2">
-                                                <img src="{{ asset($childImage) }}" alt="" width="75" height="75">
-                                            </div>
-                                            <div class="col-md-10">
-                                                <div class="px-3">
-                                                    <div class="comment-title-date d-flex justify-content-between">
-                                                        <h4 class="mt-3"><a href="">{{ $childName }}</a></h4>
-                                                        <time datetime="{{ \Carbon\Carbon::parse($child->created_at)->format("d-m-Y") }}">
-                                                            {{ \Carbon\Carbon::parse($child->created_at)->format("d-m-Y") }}
-                                                        </time>
-                                                    </div>
-                                                    <p class="text-secondary">{{ $child->comment }}</p>
-                                                    <div class="d-flex align-items-center justify-content-between">
-                                                        <div class="d-flex  align-items-center">
-                                                            <a href="javascript:void(0)" class="like-comment"><span class="material-icons">thumb_up</span></a>
-                                                            <a href="javascript:void(0)" class="like-comment"><span class="material-icons-outlined">thumb_up_off_alt</span></a> 12
-                                                        </div>
+                                        }
+                                        else
+                                        {
+                                            $childImage = $settings->default_comment_profile_image;
+                                            $childName = $child->name;
+                                        }
+                                    @endphp
+                                    <div
+                                        class="article-comment bg-white p-2 mt-3 d-flex justify-content-between align-items-center shadow-sm">
+                                        <div class="col-md-2">
+                                            <img src="{{ asset($childImage) }}" alt="" width="75" height="75">
+                                        </div>
+                                        <div class="col-md-10">
+                                            <div class="px-3">
+                                                <div class="comment-title-date d-flex justify-content-between">
+                                                    <h4 class="mt-3"><a href="">{{ $childName }}</a></h4>
+                                                    <time
+                                                        datetime="{{ \Carbon\Carbon::parse($child->created_at)->format("d-m-Y") }}">
+                                                        {{ \Carbon\Carbon::parse($child->created_at)->format("d-m-Y") }}
+                                                    </time>
+                                                </div>
+                                                <p class="text-secondary">{{ $child->comment }}</p>
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="d-flex  align-items-center">
+                                                        <a href="javascript:void(0)" class="like-comment"><span
+                                                                class="material-icons">thumb_up</span></a>
+                                                        <a href="javascript:void(0)" class="like-comment"><span
+                                                                class="material-icons-outlined">thumb_up_off_alt</span></a>
+                                                        12
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         @endif
 
                     </div>
@@ -199,4 +216,45 @@
 @endsection
 
 @section("js")
+    <script>
+        $(document).ready(function () {
+            $('#favoriteArticle').click(function () {
+                @if(Auth::check())
+                let articleID = $(this).data('id');
+                let self = $(this);
+
+                $.ajax({
+                    method: "POST",
+                    url: "{{ route("article.favorite") }}",
+                    data: {
+                        id: articleID
+                    },
+                    async: false,
+                    success: function (data) {
+                        if(data.process)
+                        {
+                            self.css("color","red")
+                        }
+                        else
+                        {
+                            self.css("color","inherit")
+                        }
+
+                        $('#favoriteCount').text(data.like_count);
+                    },
+                    error: function () {
+                        console.log("hata geldi");
+                    }
+                })
+                @else
+                Swal.fire({
+                    title: "Bilgi",
+                    text: "Kullanıcı Girişi Yapmadan Favorilerinize Alamazsınız",
+                    confirmButtonText: "Tamam",
+                    icon: "info"
+                })
+                @endif
+            });
+        });
+    </script>
 @endsection
